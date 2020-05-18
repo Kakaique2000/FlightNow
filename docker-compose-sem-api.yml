@@ -1,0 +1,53 @@
+version: '3.5'
+
+services:
+
+  app:
+    container_name: angular_application
+    build: 
+      context: ./app/
+      args:
+        PROD: "true"
+    image: kakaique2000/flight_frontend
+    ports: 
+      - "80:80"
+    environment:
+      - PROD=false
+     
+
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+       - pgadmin:/root/.pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:8081"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+    postgres:
+    pgadmin:
